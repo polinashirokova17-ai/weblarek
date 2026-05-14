@@ -3,6 +3,7 @@ import { Products } from './components/models/products';
 import { Basket } from './components/models/Basket';
 import { Buyer } from './components/models/Buyer';
 import { AppApi } from './components/AppApi';
+import { Api } from './components/base/Api';
 import { API_URL, CDN_URL } from './utils/constants';
 import { apiProducts } from './utils/data';
 
@@ -37,7 +38,7 @@ console.log('После clear():', basketModel.getItems());
 
 // 4. Тестирование Buyer
 console.log('\n--- Тестирование Buyer ---');
-buyerModel.setField('payment', 'online');
+buyerModel.setField('payment', 'card');
 buyerModel.setField('address', 'г. Москва, ул. Тестовая, д. 1');
 buyerModel.setField('email', 'test@example.com');
 buyerModel.setField('phone', '+7 999 123-45-67');
@@ -54,14 +55,21 @@ console.log('\n=== ШАГ 3 ЗАВЕРШЕН ===');
 
 console.log('\n=== ШАГ 4: ЗАПРОС К СЕРВЕРУ ===');
 
-const api = new AppApi(API_URL, CDN_URL);
+// Создаем экземпляр Api для работы с сервером
+const apiInstance = new Api(API_URL);
+// Создаем AppApi с использованием композиции
+const appApi = new AppApi(apiInstance);
 
-api.getProducts()
-    .then(products => {
-        console.log('Объект, полученный с сервера:', products);
+appApi.getProducts()
+    .then(response => {
+        console.log('Объект, полученный с сервера:', response);
         
-        // Сохранение массива в модели данных
-        productsModel.setItems(products);
+        // Сохраняем массив товаров в модели данных (добавляем CDN-префикс здесь)
+        const productsWithImages = response.items.map(item => ({
+            ...item,
+            image: CDN_URL + item.image
+        }));
+        productsModel.setItems(productsWithImages);
         
         console.log('Массив сохранён в модели каталога:');
         console.log(productsModel.getItems());

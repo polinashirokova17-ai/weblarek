@@ -1,34 +1,29 @@
 import { IProduct } from '../../types';
 
 export class Basket {
-    private _items: Map<string, IProduct> = new Map();
+    private items: Map<string, IProduct> = new Map();
 
-    // Получение массива товаров в корзине
     getItems(): IProduct[] {
-        return Array.from(this._items.values());
+        return Array.from(this.items.values());
     }
 
-    // Добавление товара в корзину (только если есть цена)
     addItem(product: IProduct): void {
-        if (product.price !== null && !this._items.has(product.id)) {
-            this._items.set(product.id, product);
+        if (product.price !== null && !this.hasItem(product.id)) {
+            this.items.set(product.id, product);
         }
     }
 
-    // Удаление товара из корзины
     removeItem(id: string): void {
-        this._items.delete(id);
+        this.items.delete(id);
     }
 
-    // Очистка корзины
     clear(): void {
-        this._items.clear();
+        this.items.clear();
     }
 
-    // Получение стоимости всех товаров
     getTotal(): number {
         let total = 0;
-        this._items.forEach(item => {
+        this.items.forEach(item => {
             if (item.price !== null) {
                 total += item.price;
             }
@@ -36,13 +31,11 @@ export class Basket {
         return total;
     }
 
-    // Получение количества товаров
     getCount(): number {
-        return this._items.size;
+        return this.items.size;
     }
 
-    // Проверка наличия товара по id
     hasItem(id: string): boolean {
-        return this._items.has(id);
+        return this.items.has(id);
     }
 }
