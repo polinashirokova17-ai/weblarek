@@ -31,12 +31,7 @@ export interface IBuyer {
   address: string;
 }
 
-export interface IFormErrors {
-  payment?: string;
-  address?: string;
-  email?: string;
-  phone?: string;
-}
+export type IFormErrors = Partial<Record<keyof IBuyer, string>>;
 
 // ===== ТИПЫ ДЛЯ API =====
 
