@@ -1,4 +1,5 @@
 import { IBuyer, IFormErrors, TPayment } from '../../types';
+import { IEvents } from '../base/Events';
 
 export class Buyer {
     private _payment: TPayment | null = null;
@@ -6,7 +7,9 @@ export class Buyer {
     private _email: string = '';
     private _phone: string = '';
 
-     setField(field: keyof IBuyer, value: string): void {
+    constructor(protected events: IEvents) {}
+
+    setField(field: keyof IBuyer, value: string): void {
         switch (field) {
             case 'payment':
                 if (value === 'card' || value === 'cash') {
@@ -23,6 +26,7 @@ export class Buyer {
                 this._phone = value;
                 break;
         }
+        this.events.emit('buyer:changed', this.getData());
     }
 
     getData(): IBuyer {
@@ -39,9 +43,10 @@ export class Buyer {
         this._address = '';
         this._email = '';
         this._phone = '';
+        this.events.emit('buyer:changed', this.getData());
     }
 
-     validate(): IFormErrors {
+    validate(): IFormErrors {
         const errors: IFormErrors = {};
 
         if (!this._payment) {
