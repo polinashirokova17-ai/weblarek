@@ -1,18 +1,14 @@
 import { Component } from '../base/Component';
 import { IProduct } from '../../types';
-import { categoryMap } from '../../utils/constants';
 import { ensureElement } from '../../utils/utils';
 
 export interface ICardActions {
     onClick?: (event: MouseEvent) => void;
-    onAddToBasket?: (event: MouseEvent) => void;
 }
 
 export abstract class Card extends Component<IProduct> {
     protected _title: HTMLElement;
-    protected _price: HTMLElement;
-    protected _category?: HTMLElement;
-    protected _image?: HTMLImageElement;
+    protected _price: HTLElement;
 
     constructor(protected container: HTMLElement, protected actions?: ICardActions) {
         super(container);
@@ -33,21 +29,6 @@ export abstract class Card extends Component<IProduct> {
             this._price.textContent = 'Бесценно';
         } else {
             this._price.textContent = `${value} синапсов`;
-        }
-    }
-
-    set category(value: string) {
-        if (this._category) {
-            this._category.textContent = value;
-            const modifier = categoryMap[value as keyof typeof categoryMap] || 'card__category_other';
-            this._category.className = `card__category ${modifier}`;
-        }
-    }
-
-    set image(value: string) {
-        if (this._image) {
-            this._image.src = value;
-            this._image.alt = this._title.textContent || '';
         }
     }
 }

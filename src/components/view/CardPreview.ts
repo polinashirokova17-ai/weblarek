@@ -1,12 +1,14 @@
-// src/components/view/CardPreview.ts
-import { Card, ICardActions } from './Card';
+import { Card } from './Card';
 import { ensureElement } from '../../utils/utils';
+import { categoryMap } from '../../utils/constants';
 
 export class CardPreview extends Card {
     protected _description: HTMLElement;
     protected _button: HTMLButtonElement;
+    protected _category: HTMLElement;
+    protected _image: HTMLImageElement;
 
-    constructor(container: HTMLElement, actions?: ICardActions & { onAddToBasket?: () => void }) {
+    constructor(container: HTMLElement, actions?: { onAddToBasket?: () => void }) {
         super(container, actions);
         this._description = ensureElement('.card__text', container);
         this._button = ensureElement('.card__button', container);
@@ -23,6 +25,17 @@ export class CardPreview extends Card {
 
     set description(value: string) {
         this._description.textContent = value;
+    }
+
+    set category(value: string) {
+        this._category.textContent = value;
+        const modifier = categoryMap[value as keyof typeof categoryMap] || 'card__category_other';
+        this._category.className = `card__category ${modifier}`;
+    }
+
+    set image(value: string) {
+        this._image.src = value;
+        this._image.alt = this._title.textContent || '';
     }
 
     set buttonText(value: string) {

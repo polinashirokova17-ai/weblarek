@@ -1,4 +1,3 @@
-// src/components/view/OrderForm.ts
 import { Form } from './Form';
 import { IBuyer } from '../../types';
 import { ensureElement } from '../../utils/utils';
@@ -15,13 +14,11 @@ export class OrderForm extends Form<IBuyer> {
         this._addressInput = ensureElement('input[name="address"]', container);
 
         this._cardButton.addEventListener('click', () => {
-            this.togglePayment('card');
-            this.onInputChange('payment', 'card');
+            this.events.emit('order.payment.select', { payment: 'card' });
         });
 
         this._cashButton.addEventListener('click', () => {
-            this.togglePayment('cash');
-            this.onInputChange('payment', 'cash');
+            this.events.emit('order.payment.select', { payment: 'cash' });
         });
     }
 
@@ -32,16 +29,13 @@ export class OrderForm extends Form<IBuyer> {
         other.classList.remove('button_alt-active');
     }
 
-    protected getData(): Partial<IBuyer> {
-        const payment = this._cardButton.classList.contains('button_alt-active') ? 'card' : 
-                       this._cashButton.classList.contains('button_alt-active') ? 'cash' : null;
-        return {
-            payment,
-            address: this._addressInput.value
-        };
-    }
-
     set address(value: string) {
         this._addressInput.value = value;
+    }
+
+    protected getData(): Partial<IBuyer> {
+        return {
+            address: this._addressInput.value
+        };
     }
 }

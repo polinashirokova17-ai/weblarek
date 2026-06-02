@@ -1,4 +1,3 @@
-// src/components/view/ContactsForm.ts
 import { Form } from './Form';
 import { IBuyer } from '../../types';
 import { ensureElement } from '../../utils/utils';
@@ -13,18 +12,15 @@ export class ContactsForm extends Form<IBuyer> {
         this._phoneInput = ensureElement('input[name="phone"]', container);
     }
 
-    protected getData(): Partial<IBuyer> {
-        return {
-            email: this._emailInput.value,
-            phone: this._phoneInput.value
-        };
-    }
-
     set email(value: string) {
         this._emailInput.value = value;
     }
 
     set phone(value: string) {
         this._phoneInput.value = value;
+    }
+
+    protected getData(): Partial<IBuyer> {
+        return {};
     }
 }
