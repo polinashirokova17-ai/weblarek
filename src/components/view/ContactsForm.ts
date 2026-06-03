@@ -19,8 +19,4 @@ export class ContactsForm extends Form<IBuyer> {
     set phone(value: string) {
         this._phoneInput.value = value;
     }
-
-    protected getData(): Partial<IBuyer> {
-        return {};
-    }
 }

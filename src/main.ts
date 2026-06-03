@@ -67,7 +67,11 @@ const contactsForm = new ContactsForm(
   events,
 );
 const successView = new Success(cloneTemplate(successTemplate), events);
-let currentPreviewCard: CardPreview | null = null;
+const previewCard = new CardPreview(cloneTemplate(cardPreviewTemplate), {
+  onAddToBasket: () => {
+    events.emit("preview:toggle");
+  },
+});
 
 // === ОБНОВЛЕНИЕ КОРЗИНЫ ===
 function updateBasketUI() {
@@ -104,7 +108,7 @@ function renderCatalog(products: IProduct[]) {
   const cards = products.map((product) => {
     const card = new CardCatalog(cloneTemplate(cardCatalogTemplate), {
       onClick: () => {
-        productsModel.setPreview(product.id);
+        events.emit("card:click", product.id);
       },
     });
     card.title = product.title;
@@ -122,62 +126,50 @@ function updateFormsFromModel() {
   const errors = buyerModel.validate();
 
   // Обновляем форму заказа
-  if (buyer.address) {
-    orderForm.address = buyer.address;
-  }
+  orderForm.render({
+    address: buyer.address,
+    valid: !errors.payment && !errors.address,
+    errors: errors.payment || errors.address || "",
+  });
+  
   if (buyer.payment) {
     orderForm.togglePayment(buyer.payment);
   }
-  orderForm.errors = errors.payment || errors.address || "";
-  orderForm.valid = !errors.payment && !errors.address;
 
   // Обновляем форму контактов
-  if (buyer.email) {
-    contactsForm.email = buyer.email;
-  }
-  if (buyer.phone) {
-    contactsForm.phone = buyer.phone;
-  }
-  contactsForm.errors = errors.email || errors.phone || "";
-  contactsForm.valid = !errors.email && !errors.phone;
+  contactsForm.render({
+    email: buyer.email,
+    phone: buyer.phone,
+    valid: !errors.email && !errors.phone,
+    errors: errors.email || errors.phone || "",
+  });
 }
 
 // === ОБНОВЛЕНИЕ ПРЕВЬЮ ===
 function updatePreview() {
-  const previewId = productsModel.getPreview();
-  if (!previewId) return;
-
-  const product = productsModel.getItem(previewId);
+  const product = productsModel.getPreviewProduct();
   if (!product) return;
 
   const isInBasket = basketModel.hasItem(product.id);
 
-  if (!currentPreviewCard) {
-    currentPreviewCard = new CardPreview(cloneTemplate(cardPreviewTemplate), {
-      onAddToBasket: () => {
-        events.emit("preview:toggle", product.id);
-      },
-    });
-  }
-
-  currentPreviewCard.title = product.title;
-  currentPreviewCard.price = product.price;
-  currentPreviewCard.category = product.category;
-  currentPreviewCard.image = product.image;
-  currentPreviewCard.description = product.description;
+  previewCard.title = product.title;
+  previewCard.price = product.price;
+  previewCard.category = product.category;
+  previewCard.image = product.image;
+  previewCard.description = product.description;
 
   if (product.price === null) {
-    currentPreviewCard.buttonText = "Недоступно";
-    currentPreviewCard.buttonDisabled = true;
+    previewCard.buttonText = "Недоступно";
+    previewCard.buttonDisabled = true;
   } else if (isInBasket) {
-    currentPreviewCard.buttonText = "Удалить из корзины";
-    currentPreviewCard.buttonDisabled = false;
+    previewCard.buttonText = "Удалить из корзины";
+    previewCard.buttonDisabled = false;
   } else {
-    currentPreviewCard.buttonText = "В корзину";
-    currentPreviewCard.buttonDisabled = false;
+    previewCard.buttonText = "В корзину";
+    previewCard.buttonDisabled = false;
   }
 
-  modal.content = currentPreviewCard.render();
+  modal.content = previewCard.render();
   modal.open();
 }
 
@@ -206,7 +198,6 @@ events.on("preview:changed", () => {
 
 events.on("basket:changed", () => {
   updateBasketUI();
-  updatePreview(); // Обновляем кнопку в превью если оно открыто
 });
 
 events.on("buyer:changed", () => {
@@ -214,6 +205,10 @@ events.on("buyer:changed", () => {
 });
 
 // События от представлений
+events.on("card:click", (id: string) => {
+  productsModel.setPreview(id);
+});
+
 events.on("basket:open", () => {
   modal.content = basketView.render();
   modal.open();
@@ -223,12 +218,12 @@ events.on("basket:remove", (id: string) => {
   basketModel.removeItem(id);
 });
 
-events.on("preview:toggle", (productId: string) => {
-  const product = productsModel.getItem(productId);
+events.on("preview:toggle", () => {
+  const product = productsModel.getPreviewProduct();
   if (!product) return;
 
-  if (basketModel.hasItem(productId)) {
-    basketModel.removeItem(productId);
+  if (basketModel.hasItem(product.id)) {
+    basketModel.removeItem(product.id);
   } else {
     basketModel.addItem(product);
   }

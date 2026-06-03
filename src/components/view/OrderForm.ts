@@ -32,10 +32,4 @@ export class OrderForm extends Form<IBuyer> {
     set address(value: string) {
         this._addressInput.value = value;
     }
-
-    protected getData(): Partial<IBuyer> {
-        return {
-            address: this._addressInput.value
-        };
-    }
 }

@@ -30,8 +30,4 @@ export class Modal extends Component<{}> {
         this._content.innerHTML = '';
         this.events.emit('modal:close');
     }
-
-    render(data?: {}): HTMLElement {
-        return this.container;
-    }
 }

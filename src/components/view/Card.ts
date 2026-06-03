@@ -8,16 +8,12 @@ export interface ICardActions {
 
 export abstract class Card extends Component<IProduct> {
     protected _title: HTMLElement;
-    protected _price: HTLElement;
+    protected _price: HTMLElement;
 
     constructor(protected container: HTMLElement, protected actions?: ICardActions) {
         super(container);
         this._title = ensureElement('.card__title', container);
         this._price = ensureElement('.card__price', container);
-        
-        if (actions?.onClick) {
-            container.addEventListener('click', actions.onClick);
-        }
     }
 
     set title(value: string) {
