@@ -10,6 +10,10 @@ export class CardCatalog extends Card {
         super(container, actions);
         this._category = ensureElement('.card__category', container);
         this._image = ensureElement('.card__image', container);
+    
+    if (actions?.onClick) {
+            container.addEventListener('click', actions.onClick);
+        }
     }
 
     set category(value: string) {

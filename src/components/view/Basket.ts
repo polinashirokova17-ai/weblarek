@@ -16,6 +16,8 @@ export class Basket extends Component<{ items: HTMLElement[]; total: number }> {
         this._button.addEventListener('click', () => {
             this.events.emit('order:start');
         });
+
+        this.buttonDisabled = true;
     }
 
     set items(items: HTMLElement[]) {
